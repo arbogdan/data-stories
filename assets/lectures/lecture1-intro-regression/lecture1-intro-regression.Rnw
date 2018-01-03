@@ -289,10 +289,10 @@ qplot(salary, sat, data=SAT) + xlab("Est. average public school teacher salary")
 
 <<sat2, echo=TRUE, eval=FALSE, message=FALSE, fig.height=5>>=
 ggplot(aes(salary, sat), data=SAT) +
-    geom_point() +
-    geom_smooth(method="lm", se=FALSE) + 
-    xlab("est. average public school teacher salary") + 
-    ylab("average total SAT score")
+    geom_point() + # Nothing required because we already specified everything
+    geom_smooth(method="lm", se=FALSE) + #'lm' = linear modeling, 'se' = standard error
+    xlab("est. average public school teacher salary") + # Specify x-axis label
+    ylab("average total SAT score") # Specify y-axis label
 @
 
 
@@ -333,11 +333,10 @@ ggplot(aes(salary, sat), data=SAT) +
 
 \end{frame}
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-
-\begin{frame}[fragile]{State-level SAT score data (1994-95)}
+\begin{frame}[fragile]{Fraction of students taking SAT vs. Teacher Salary by State (1994-95)}
 
 <<sat3, echo=FALSE, message=FALSE, fig.height=5>>=
 qplot(salary, frac, data=SAT)+
@@ -348,31 +347,71 @@ qplot(salary, frac, data=SAT)+
 
 \end{frame}
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}[fragile]{State-level SAT score data (1994-95)}
+\begin{frame}[fragile]{Uncovering the whole story}
+
+\myitem So far, we've only considered our data as a whole. At face value, this is fine.
+\myitems Often, there are underlying relationships and differences that we might otherwise miss if we lack investigative imagination.
+
+<<sat4, echo=TRUE, eval=TRUE, message=FALSE>>=
+# Let's create a 3-level categorical variable from our 'frac' variable
+# We want to find the values in 'frac' that correspond to 33%, 66%, and ~99%
+quantile(SAT$frac, c(0.33, 0.66, 1))
+
+SAT$fracgrp = cut(SAT$frac, breaks = c(0, 11, 53, 81),
+		  labels = c('Low', 'Medium', 'High'))
+
+@
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Code: Fraction of students taking SAT vs. Teacher salary by State (1994-95)}
+
+<<sat4, echo=TRUE, eval=FALSE, message=FALSE, fig.height=5>>=
+# Specify x-variable, y-variable, dataset, and coloring variable
+qplot(salary, frac, color = fracgrp, data = SAT) +
+    # Specify labels for x- & y-axes
+    xlab("Est. average public school teacher salary (x $1,000)") + 
+    ylab("Percentage of all eligible students taking the SAT") +
+    # Add grey, dashed lines to indicate 33% & 66% cutoffs
+    geom_hline(yintercept = c(11, 53), linetype = 2, color = "grey") +
+    # Specify legend title and color scheme (based on afore-referenced variable)
+    # Note: '\n' tells R to begin the succeeding text on a new line
+    guides(color = guide_legend(title = "% of students\ntaking SAT"))
+@
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Plot: Fraction of students taking SAT vs. Teacher salary by State (1994-95)}
 
 <<sat4, echo=FALSE, message=FALSE, fig.height=5>>=
-qplot(salary, frac, color=fracgrp, data=SAT)+
-    xlab("est. average public school teacher salary") + 
-    ylab("percentage of all eligible students taking the SAT") +
-    geom_hline(yintercept=c(22, 49), linetype=2, color="grey") +
-    guides(color=guide_legend(title="% taking SAT"))
+qplot(salary, frac, color = fracgrp, data = SAT) +
+    xlab("Est. average public school teacher salary (x $1,000)") + 
+    ylab("Percentage of all eligible students taking the SAT") +
+    geom_hline(yintercept = c(11, 53), linetype = 2, color = "grey") +
+    guides(color = guide_legend(title = "% of students\ntaking SAT"))
 @
 
 \end{frame}
 
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}[fragile]{State-level SAT score data (1994-95)}
+\begin{frame}[fragile]{Plot: Average SAT score vs. Teacher salary by State (1994-95)}
 
 <<sat4a, echo=FALSE, message=FALSE, fig.height=5>>=
-qplot(salary, sat, color=fracgrp, data=SAT) + 
-    xlab("est. average public school teacher salary") + 
-    ylab("average total SAT score")+
-    guides(color=guide_legend(title="% taking SAT"))
+qplot(salary, sat, color = fracgrp, data = SAT) + 
+    xlab("Est. average public school teacher salary (x $1,000)") + 
+    ylab("Average total SAT score")+
+    guides(color = guide_legend(title = "% of students\ntaking SAT"))
 @
 
 \end{frame}
@@ -380,13 +419,32 @@ qplot(salary, sat, color=fracgrp, data=SAT) +
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}[fragile]{State-level SAT score data (1994-95)}
+\begin{frame}[fragile]{Code: A facetted example}
+
+<<sat5, echo=TRUE, eval = FALSE, message=FALSE, fig.height=5>>=
+qplot(salary, sat, color = fracgrp, facets = . ~ fracgrp, data = SAT, 
+    main = "Average SAT score vs. Teacher salary by State (1994-95)") +
+    # Usng 'qplot()', we add a title using the 'main = ' argument
+    # 'facets' creates distinct plots based on the splitting variable
+    # The '.' is essentially a placeholder here
+    xlab("Est. average public school teacher salary (x $1,000)") + 
+    ylab("Average total SAT score") +
+    guides(color = guide_legend(title = "% of students\ntaking SAT"))
+@
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Plot: A facetted example}
 
 <<sat5, echo=FALSE, message=FALSE, fig.height=5>>=
-qplot(salary, sat, color=fracgrp, facets=.~fracgrp, data=SAT) + 
-    xlab("est. average public school teacher salary") + 
-    ylab("average total SAT score")+
-    guides(color=guide_legend(title="% taking SAT"))
+qplot(salary, sat, color = fracgrp, facets = . ~ fracgrp, data = SAT, 
+    main = "Average SAT score vs. Teacher salary by State (1994-95)") + 
+    xlab("Est. average public school teacher salary (x $1,000)") + 
+    ylab("Average total SAT score")+
+    guides(color = guide_legend(title = "% of students\ntaking SAT"))
 @
 
 \end{frame}
@@ -394,29 +452,28 @@ qplot(salary, sat, color=fracgrp, facets=.~fracgrp, data=SAT) +
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}[fragile]{State-level SAT score data (1994-95)}
+\begin{frame}[fragile]{Code: Fraction-specific linear regression lines}
+
+<<sat6, echo=TRUE, eval=FALSE, message=FALSE, fig.height=5>>=
+ggplot(aes(salary, sat, color=fracgrp), data=SAT) +
+    # When fitting linear regression lines, R will use spitting var
+    geom_point() + geom_smooth(method="lm", se=FALSE) + 
+    xlab("est. average public school teacher salary") + 
+    ylab("average total SAT score") +
+    # When using 'gplot()', we can add a title using 'ggtitle()'
+    ggtitle(
+    guides(color=guide_legend(title="% taking SAT"))
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Plot: Fraction-specific linear regression lines}
 
 <<sat6, echo=FALSE, message=FALSE, fig.height=5>>=
 ggplot(aes(salary, sat, color=fracgrp), data=SAT) +
     geom_point() + geom_smooth(method="lm", se=FALSE) + 
-    xlab("est. average public school teacher salary") + 
-    ylab("average total SAT score")+
-    guides(color=guide_legend(title="% taking SAT"))
-@
-
-\end{frame}
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\begin{frame}[fragile]{State-level SAT score data (1994-95)}
-
-<<sat7, echo=FALSE, message=FALSE, fig.height=5>>=
-ggplot(SAT, aes(x=salary, y=sat)) +
-    geom_text(aes(color=fracgrp, label=state), size=4, show.legend=FALSE)+
-    geom_smooth(aes(color=fracgrp), method="lm", se=FALSE) +
-    geom_smooth(method="lm", se=FALSE, color="black") + 
     xlab("est. average public school teacher salary") + 
     ylab("average total SAT score") +
     guides(color=guide_legend(title="% taking SAT"))
@@ -425,6 +482,46 @@ ggplot(SAT, aes(x=salary, y=sat)) +
 \end{frame}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Code: Comparing regression lines}
+
+<<sat7, echo=TRUE, eval=FALSE, message=FALSE, fig.height=5>>=
+ggplot(SAT, aes(x = salary, y = sat)) +
+    # Notice that the dataset can be specified first without referencing 'data = '
+    # This is another example of a positional argument
+    geom_text(aes(color = fracgrp, label = state), size = 4, show.legend = FALSE) +
+    # 'label' specifies a variable containing labels for each data point
+    # 'size' specifies the size of each point (or in this case, label)
+    geom_smooth(aes(color = fracgrp), method = "lm", se = FALSE) +
+    # We specify that we want regression lines for each level of fracgrp
+    geom_smooth(method = "lm", se = FALSE, color = "black") + 
+    # Specify that we want an overall regression line as well
+    xlab("Est. average public school teacher salary (x $1,000)") + 
+    ylab("Average total SAT score") +
+    ggtitle("Average SAT score vs. Teacher salary by State") +
+    guides(color = guide_legend(title = "% of students\ntaking SAT"))
+@
+
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Plot: Comparing regression lines}
+
+<<sat7, echo=FALSE, message=FALSE, fig.height=5>>=
+ggplot(SAT, aes(x = salary, y = sat)) +
+    geom_text(aes(color = fracgrp, label = state), size = 4, show.legend = FALSE) +
+    geom_smooth(aes(color = fracgrp), method = "lm", se = FALSE) +
+    geom_smooth(method = "lm", se = FALSE, color = "black") + 
+    xlab("Est. average public school teacher salary (x $1,000)") + 
+    ylab("Average total SAT score") +
+    ggtitle("Average SAT score vs. Teacher salary by State") +
+    guides(color = guide_legend(title = "% of students\ntaking SAT"))
+@
+
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

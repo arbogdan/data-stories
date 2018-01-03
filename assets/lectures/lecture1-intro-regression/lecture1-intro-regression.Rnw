@@ -138,12 +138,12 @@
 
 
 \begin{frame}{How to tell a story using data}
-Telling stories with data requires
+Telling stories with data requires:
 \begin{itemize}
-    \item detective work
-    \item creativity, both scientific and artistic
-    \item experimentation with different storylines
-    \item good data, (good data does not nescessarily equal ``big data'')
+    \item Detective work
+    \item Creativity, both scientific and artistic
+    \item Experimentation with different storylines
+    \item Good data (good data does not nescessarily equal ``big data'')
 \end{itemize}
 
 \end{frame}
@@ -161,7 +161,7 @@ Telling stories with data requires
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}{A common modeling tool: regression}
+\begin{frame}{A common modeling tool: Regression}
 
 \bi
         \myitem The goal is to learn about the relationship between two variables: a ``covariate'' (or ``predictor'') of interest and an ``outcome'' of interest.
@@ -169,7 +169,7 @@ Telling stories with data requires
 		\myitem Some models focus on prediction.
 		\myitem Other models focus on description.
 	\ei
-	\myitem Regression is an exercise in inferential statistics: we are drawing evidence and conclusions from data about ``complex aspects of reality'', i.e. ``noisy'' systems.
+	\myitem Regression is an exercise in inferential statistics: we are obtaining evidence and drawing conclusions from data about ``complex aspects of reality'', i.e. ``noisy'' systems.
 \ei
 
 
@@ -178,7 +178,64 @@ Telling stories with data requires
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{frame}[fragile]{State-level SAT score data (1994-95)}
+\begin{frame}{A motivating example: SAT Scores}
+
+R comes equipped with a number of interesting datasets. One such dataset contains information on average SAT scores by U.S. States from 1994-1995. Variables include:
+\myitem `state`: Factor variable with names of each U.S. state
+\myitem `expend`: Expenditure per pupil in average daily attendance in public elementary and secondary schools, 1994-95 (in thousands of US dollars)
+\myitem `salary`: Estimated average annual salary of teachers in public elementary and secondary schools, 1994-95 (in thousands of US dollars)
+\myitem `ratio`: Average pupil/teacher ratio in public elementary and secondary schools, Fall 1994
+\myitem `frac`: Percentage of all eligible students taking the SAT, 1994-95
+\myitem `sat`: Average total SAT score, 1994-95
+\myitem `math`: Average math SAT scsore, 1994-95
+\myitem `verbal`: Average verbal SAT score, 1994-95
+
+\vspace{1em}
+Source: \href{http://www.amstat.org/publications/jse/secure/v7n2/datasets.guber.cfm}
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Taking a glimpse at the SAT dataset}
+
+<<sat1, echo = TRUE, message = FALSE>>=
+library(mosaicData)
+library(dplyr)
+data(SAT)
+# Here we present a lot of information in row format
+glimpse(SAT)
+# Here we present a lot of information in column format
+tbl_df(SAT)
+
+@
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Code: State-level SAT score data (1994-95) as a function of teacher salary}
+
+<<sat1, echo=TRUE, eval=FALSE, message=FALSE, fig.height=5>>=
+# Load necessary packages using library() function
+library(mosaicData) # Contains useful datasets
+library(ggplot2) # Seminal package for visualization in R
+theme_set(theme_bw()) # Add global theme for our graphic
+data(SAT) # Read in dataset from mosaicData package
+
+ggplot(SAT) + 
+    geom_text(aes(x = salary, y = sat, label = state), size=3.5, show.legend=FALSE) +
+    xlab("Est. average public school teacher salary") + 
+    ylab("Average total SAT score")
+
+@
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Plot: State-level SAT score data (1994-95) as a function of teacher salary}
 
 <<sat1, echo=FALSE, message=FALSE, fig.height=5>>=
 library(mosaicData)
@@ -198,14 +255,28 @@ ggplot(SAT) +
 \end{frame}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Code: State-level SAT score data (1994-95), Simple}
+
+`qplot` can be used to make quick graphics for simple data visualization. `ggplot` should be used for any presentation-level visualizations.
+
+<<sat1a, echo=TRUE, eval=FALSE, message=FALSE, fig.height=5>>=
+qplot(salary, sat, data=SAT) + xlab("Est. average public school teacher salary") + ylab("Average total SAT score")
+
+@
+\myitem Notice that `x` and `y` have not been specified here. These can be used as either *keyword* arguments (specified as "x = ...") or as *positional* arguments (specified based on the explicit position at which it is declared in the function)
+\myitem A new line can be started after each `+` sign for visual clarity, however this is not required.
+
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\begin{frame}[fragile]{State-level SAT score data (1994-95)}
+\begin{frame}[fragile]{Plot: State-level SAT score data (1994-95), Simple}
 
 <<sat1a, echo=FALSE, message=FALSE, fig.height=5>>=
-qplot(salary, sat, data=SAT) + xlab("est. average public school teacher salary") + ylab("average total SAT score")
+qplot(salary, sat, data=SAT) + xlab("Est. average public school teacher salary") + ylab("Average total SAT score")
 
 @
 
@@ -214,9 +285,22 @@ qplot(salary, sat, data=SAT) + xlab("est. average public school teacher salary")
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{frame}[fragile]{Code: State-level SAT score data (1994-95)}
+
+<<sat2, echo=TRUE, eval=FALSE, message=FALSE, fig.height=5>>=
+ggplot(aes(salary, sat), data=SAT) +
+    geom_point() +
+    geom_smooth(method="lm", se=FALSE) + 
+    xlab("est. average public school teacher salary") + 
+    ylab("average total SAT score")
+@
 
 
-\begin{frame}[fragile]{State-level SAT score data (1994-95)}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[fragile]{Plot: State-level SAT score data (1994-95)}
 
 <<sat2, echo=FALSE, message=FALSE, fig.height=5>>=
 ggplot(aes(salary, sat), data=SAT) +
